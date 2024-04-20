@@ -1,9 +1,7 @@
 import { auth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
-
 import { db } from "@/lib/db";
 import { getProgress } from "@/actions/get-progress";
-
 import { CourseSidebar } from "./_components/course-sidebar";
 import { CourseNavbar } from "./_components/course-navbar";
 
@@ -70,4 +68,4 @@ const CourseLayout = async ({
   )
 }
 
-export default CourseLayout
+export default CourseLayout;

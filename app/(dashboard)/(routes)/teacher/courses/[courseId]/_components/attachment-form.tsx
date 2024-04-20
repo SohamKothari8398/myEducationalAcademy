@@ -1,45 +1,40 @@
 "use client";
-
-import * as z from "zod";
-import axios from "axios";
-import { Pencil, PlusCircle, ImageIcon, File, Loader2, X } from "lucide-react";
 import { useState } from "react";
+import axios from "axios";
+import { PlusCircle, File, Loader2, Trash2, ExternalLink } from "lucide-react";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 import { Attachment, Course } from "@prisma/client";
-import Image from "next/image";
-
 import { Button } from "@/components/ui/button";
-import { FileUpload } from "@/components/file-upload";
 
 interface AttachmentFormProps {
   initialData: Course & { attachments: Attachment[] };
   courseId: string;
-};
-
-const formSchema = z.object({
-  url: z.string().min(1),
-});
+}
 
 export const AttachmentForm = ({
   initialData,
-  courseId
+  courseId,
 }: AttachmentFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [attachmentLink, setAttachmentLink] = useState<string | null>(null);
+  const [attachmentName, setAttachmentName] = useState<string | null>(null);
 
   const toggleEdit = () => setIsEditing((current) => !current);
 
-  const router = useRouter();
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async () => {
     try {
-      await axios.post(`/api/courses/${courseId}/attachments`, values);
-      toast.success("Course updated");
-      toggleEdit();
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong");
+      if (attachmentLink && attachmentName) {
+        await axios.post(`/api/courses/${courseId}/attachments`, { url: attachmentLink, name: attachmentName });
+        toast.success("Attachment added");
+        toggleEdit();
+        window.location.reload(); // Reload the page
+      } else {
+        toast.error("Attachment link is empty");
+      }
+    } catch (error) {
+      console.error("Error adding attachment:", error);
+      toast.error("Failed to add attachment");
     }
   };
 
@@ -48,23 +43,27 @@ export const AttachmentForm = ({
       setDeletingId(id);
       await axios.delete(`/api/courses/${courseId}/attachments/${id}`);
       toast.success("Attachment deleted");
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong");
+      window.location.reload(); // Reload the page
+    } catch (error) {
+      console.error("Error deleting attachment:", error);
+      toast.error("Failed to delete attachment");
     } finally {
       setDeletingId(null);
     }
-  }
+  };
+
+  const onViewLink = (url: string) => {
+    window.open(url, '_blank');
+  };
 
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Course attachments
+        Full Course Attachment
         <Button onClick={toggleEdit} variant="ghost">
-          {isEditing && (
+          {isEditing ? (
             <>Cancel</>
-          )}
-          {!isEditing && (
+          ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
               Add a file
@@ -98,11 +97,19 @@ export const AttachmentForm = ({
                   {deletingId !== attachment.id && (
                     <button
                       onClick={() => onDelete(attachment.id)}
-                      className="ml-auto hover:opacity-75 transition"
+                      className="ml-auto hover:opacity-75 hover:scale-125 transition"
                     >
-                      <X className="h-4 w-4" />
+                      <Trash2 color="red" />
                     </button>
                   )}
+                  <div className="ml-auto">
+                    <button
+                      onClick={() => onViewLink(attachment.url)} // Updated onClick handler
+                      className="hover:opacity-75 hover:scale-125 transition"
+                    >
+                      <ExternalLink color="black" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -111,19 +118,40 @@ export const AttachmentForm = ({
       )}
       {isEditing && (
         <div>
-          <FileUpload
-            endpoint="courseAttachment"
-            onChange={(url) => {
-              if (url) {
-                onSubmit({ url: url });
-              }
-            }}
-          />
           <div className="text-xs text-muted-foreground mt-4">
             Add anything your students might need to complete the course.
+          </div>
+          <div className="mt-4 items-center flex flex-col border bg-slate-100 rounded-md p-4">
+            <div className="font-medium flex text-start justify-start">
+              PDF Attachment Link from Google Drive or Uploadthing Account
+            </div>
+            <div className="font-medium flex text-start justify-start mt-4">
+              Attachment URL
+            </div>
+            <input
+              type="text"
+              value={attachmentLink || ''}
+              onChange={(e) => setAttachmentLink(e.target.value)}
+              className="mt-2 p-2 w-full bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+            />
+            <div className="font-medium flex text-start justify-start mt-4">
+              Attachment Name
+            </div>
+            <input
+              type="text"
+              value={attachmentName || ''}
+              onChange={(e) => setAttachmentName(e.target.value)}
+              className="mt-2 p-2 w-full bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+            />
+            <div className="text-xs text-orange-500 mt-4">
+              Only the shareable PDF attachment link from your Google Drive or Uploadthing account for further processing.
+            </div>
+            <Button variant="success" className="mt-4" onClick={onSubmit}>
+              Submit
+            </Button>
           </div>
         </div>
       )}
     </div>
-  )
-}
+  );
+};

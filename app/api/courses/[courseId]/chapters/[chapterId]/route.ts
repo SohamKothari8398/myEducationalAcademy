@@ -1,13 +1,6 @@
-import Mux from "@mux/mux-node";
 import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
-
 import { db } from "@/lib/db";
-
-const { Video } = new Mux(
-  process.env.MUX_TOKEN_ID!,
-  process.env.MUX_TOKEN_SECRET!,
-);
 
 export async function DELETE(
   req: Request,
@@ -42,24 +35,15 @@ export async function DELETE(
       return new NextResponse("Not Found", { status: 404 });
     }
 
-    if (chapter.videoUrl) {
-      const existingMuxData = await db.muxData.findFirst({
-        where: {
-          chapterId: params.chapterId,
-        }
-      });
+    // Delete any related data or perform cleanup tasks here
+    // For example, you can delete attachments associated with the chapter
+    await db.attachment.deleteMany({
+      where: {
+        chapterId: params.chapterId,
+      },
+    });
 
-      if (existingMuxData) {
-        await Video.Assets.del(existingMuxData.assetId);
-        await db.muxData.delete({
-          where: {
-            id: existingMuxData.id,
-          }
-        });
-      }
-    }
-
-    const deletedChapter = await db.chapter.delete({
+    await db.chapter.delete({
       where: {
         id: params.chapterId
       }
@@ -83,9 +67,9 @@ export async function DELETE(
       });
     }
 
-    return NextResponse.json(deletedChapter);
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.log("[CHAPTER_ID_DELETE]", error);
+    console.error("[CHAPTER_ID_DELETE]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
@@ -96,7 +80,7 @@ export async function PATCH(
 ) {
   try {
     const { userId } = auth();
-    const { isPublished, ...values } = await req.json();
+    const { videoUrl, ...values } = await req.json();
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -120,43 +104,42 @@ export async function PATCH(
       },
       data: {
         ...values,
+        videoUrl, // Update the videoUrl directly
       }
     });
 
-    if (values.videoUrl) {
-      const existingMuxData = await db.muxData.findFirst({
-        where: {
-          chapterId: params.chapterId,
-        }
-      });
-
-      if (existingMuxData) {
-        await Video.Assets.del(existingMuxData.assetId);
-        await db.muxData.delete({
-          where: {
-            id: existingMuxData.id,
-          }
-        });
-      }
-
-      const asset = await Video.Assets.create({
-        input: values.videoUrl,
-        playback_policy: "public",
-        test: false,
-      });
-
-      await db.muxData.create({
-        data: {
-          chapterId: params.chapterId,
-          assetId: asset.id,
-          playbackId: asset.playback_ids?.[0]?.id,
-        }
-      });
-    }
-
     return NextResponse.json(chapter);
   } catch (error) {
-    console.log("[COURSES_CHAPTER_ID]", error);
-    return new NextResponse("Internal Error", { status: 500 }); 
+    console.error("[COURSES_CHAPTER_ID]", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
+
+export async function GET(req: Request, { params }: { params: { courseId: string; chapterId: string } }) {
+  try {
+    // Check user authentication (optional, adjust based on your needs)
+    const { userId } = auth();
+    if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    const chapter = await db.chapter.findUnique({
+      where: {
+        id: params.chapterId,
+        courseId: params.courseId,
+        isPublished: true, // Only fetch published chapters (optional)
+      },
+      include: {
+        Attachment: true,
+      },
+    });
+
+    if (!chapter) {
+      return new NextResponse("Not Found", { status: 404 });
+    }
+    return NextResponse.json(chapter);
+  } catch (error) {
+    console.error("[CHAPTER_ID_GET]", error);
+    return new NextResponse("Internal Error", { status: 500 });
   }
 }

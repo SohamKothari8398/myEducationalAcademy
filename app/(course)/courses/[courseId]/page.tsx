@@ -22,11 +22,11 @@ const CourseIdPage = async ({
     }
   });
 
-  if (!course) {
-    return redirect("/");
+  if (!course || !course.chapters) {
+    return redirect(`/`);
   }
 
   return redirect(`/courses/${course.id}/chapters/${course.chapters[0].id}`);
 }
- 
+
 export default CourseIdPage;

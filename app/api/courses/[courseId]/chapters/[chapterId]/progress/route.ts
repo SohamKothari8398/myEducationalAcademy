@@ -13,7 +13,7 @@ export async function PUT(
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
-    } 
+    }
 
     const userProgress = await db.userProgress.upsert({
       where: {

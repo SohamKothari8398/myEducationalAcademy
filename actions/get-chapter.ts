@@ -5,7 +5,7 @@ interface GetChapterProps {
   userId: string;
   courseId: string;
   chapterId: string;
-};
+}
 
 export const getChapter = async ({
   userId,
@@ -43,7 +43,6 @@ export const getChapter = async ({
       throw new Error("Chapter or course not found");
     }
 
-    let muxData = null;
     let attachments: Attachment[] = [];
     let nextChapter: Chapter | null = null;
 
@@ -55,13 +54,14 @@ export const getChapter = async ({
       });
     }
 
-    if (chapter.isFree || purchase) {
-      muxData = await db.muxData.findUnique({
-        where: {
-          chapterId: chapterId,
-        }
-      });
+    let videoUrl: string | null = null;
 
+    if (chapter.isFree || purchase) {
+      // Check if the videoUrl contains the YouTube embed string
+      // if (chapter.videoUrl.includes("https://www.youtube.com/embed/")) {
+      //   videoUrl = chapter.videoUrl.replace("/embed/", "/watch?v=");
+      // }
+      // Fetch next chapter
       nextChapter = await db.chapter.findFirst({
         where: {
           courseId: courseId,
@@ -88,7 +88,7 @@ export const getChapter = async ({
     return {
       chapter,
       course,
-      muxData,
+      videoUrl,
       attachments,
       nextChapter,
       userProgress,
@@ -99,11 +99,11 @@ export const getChapter = async ({
     return {
       chapter: null,
       course: null,
-      muxData: null,
+      videoUrl: null,
       attachments: [],
       nextChapter: null,
       userProgress: null,
       purchase: null,
-    }
+    };
   }
-}
+};

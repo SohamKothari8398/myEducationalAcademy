@@ -3,19 +3,22 @@
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
-
 import { cn } from "@/lib/utils"
 
-const Dialog = DialogPrimitive.Root
+interface DialogPortalProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string;
+}
 
+const Dialog = DialogPrimitive.Root
 const DialogTrigger = DialogPrimitive.Trigger
 
 const DialogPortal = ({
   className,
   ...props
-}: DialogPrimitive.DialogPortalProps) => (
-  <DialogPrimitive.Portal className={cn(className)} {...props} />
-)
+}: DialogPortalProps) => (
+  <div className={className} {...props} />
+);
+
 DialogPortal.displayName = DialogPrimitive.Portal.displayName
 
 const DialogOverlay = React.forwardRef<
@@ -120,4 +123,5 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
+  DialogPortal,
 }

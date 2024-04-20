@@ -2,12 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body,
-:root {
-  height: 100%;
+html, body{
+  margin: 0;
+  padding: 0;
 }
- 
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -15,63 +14,63 @@ body,
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
- 
+
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
- 
+
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
- 
+
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
- 
+
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
- 
+
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
- 
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
- 
+
     --radius: 0.5rem;
   }
- 
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
- 
+
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
- 
+
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
- 
+
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
- 
+
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
- 
+
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
- 
+
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
- 
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
- 
+
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
@@ -81,8 +80,144 @@ body,
   }
 }
 
-.ql-container {
-  font-size: 16px !important;
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #1e3a8a;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-@import "~@uploadthing/react/styles.css"
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+    color: #940c0c;
+  }
+  20% {
+    color: #a84e0e;
+  }
+  40% {
+    color: hsl(44, 73%, 43%);
+  }
+  60% {
+    color: #7fbe19;
+  }
+  80% {
+    color: #1c994a;
+  }
+  100% {
+    transform: translateX(-100%);
+    color: #171e81;
+  }
+}
+
+.text-2xs {
+  font-size: 0.6rem;
+  line-height: 0.75rem;
+}
+.text-3xs {
+  font-size: 0.5rem;
+  line-height: 0.75rem;
+}
+.text-4xs {
+  font-size: 0.4rem;
+  line-height: 0.65rem;
+}
+
+.animate-marquee {
+  animation: marquee  10s linear infinite;
+}
+
+@keyframes changeBgColor {
+  0% {
+    background-color: #b585ec;
+  }
+  15% {
+    background-color: #4355f1;
+  }
+  30% {
+    background-color: #509adf;
+  }
+  45% {
+    background-colorr: #6ee087;
+  }
+  60% {
+    background-color: #eef77a;
+  }
+  80%{
+    background-color: #e49058;
+  }
+  100% {
+    background-color: #e94c4c;
+  }
+}
+
+@keyframes changeTextColor {
+  0% {
+    color: #290750;
+  }
+  15% {
+    color: #071380;
+  }
+  30% {
+  color: #0b6cc7;
+  }
+  45% {
+    color: #088624;
+  }
+  60% {
+    color: #c5d114;
+  }
+  80%{
+    color: #a84e12;
+  }
+  100% {
+    color: #be0c0c;
+  }
+}
+
+.animate-color-change {
+  animation: changeBgColor 10s linear infinite;
+}
+.animate-text-change {
+  animation: changeTextColor 5s linear infinite;
+}
+
+@keyframes changeShadowColor {
+  0% {
+    --tw-shadow-color: #9a4cf3;
+  }
+  15% {
+    --tw-shadow-color: #2635b9;
+  }
+  30% {
+    --tw-shadow-color: #1884e9;
+  }
+  45% {
+    --tw-shadow-color: #20e74b;
+  }
+  60% {
+    --tw-shadow-color: #eaf554;
+  }
+  80%{
+    --tw-shadow-color: #eb701e;
+  }
+  100% {
+    --tw-shadow-color: #eb1a1a;
+  }
+}
+
+.animate-shadow-box-change {
+  animation: changeShadowColor 10s linear infinite;
+}
+
+
+

@@ -30,8 +30,10 @@ export const CourseCard = ({
       <div className="group hover:shadow-sm transition overflow-hidden border rounded-lg p-3 h-full">
         <div className="relative w-full aspect-video rounded-md overflow-hidden">
           <Image
-            fill
             className="object-cover"
+            width={500}
+            height={500}
+            style={{ width: "100%", height: "auto", objectFit: "cover" }}
             alt={title}
             src={imageUrl}
           />

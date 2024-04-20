@@ -1,27 +1,36 @@
-"use client";
-
-import axios from "axios";
-import MuxPlayer from "@mux/mux-player-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Loader2, Lock } from "lucide-react";
-
+import axios from 'axios';
 import { cn } from "@/lib/utils";
 import { useConfettiStore } from "@/hooks/use-confetti-store";
 
 interface VideoPlayerProps {
-  playbackId: string;
+  videoUrl: string;
   courseId: string;
   chapterId: string;
   nextChapterId?: string;
   isLocked: boolean;
   completeOnEnd: boolean;
   title: string;
+}
+
+const updateProgress = async (courseId: string, chapterId: string) => {
+  try {
+    // Make a PUT request to the API endpoint
+    await axios.put(`/api/courses/${courseId}/chapters/${chapterId}/progress`, {
+      isCompleted: true,
+    });
+
+    console.log('Chapter progress updated successfully');
+  } catch (error) {
+    console.error('Error updating chapter progress:', error);
+  }
 };
 
 export const VideoPlayer = ({
-  playbackId,
+  videoUrl,
   courseId,
   chapterId,
   nextChapterId,
@@ -36,9 +45,7 @@ export const VideoPlayer = ({
   const onEnd = async () => {
     try {
       if (completeOnEnd) {
-        await axios.put(`/api/courses/${courseId}/chapters/${chapterId}/progress`, {
-          isCompleted: true,
-        });
+        await updateProgress(courseId, chapterId);
 
         if (!nextChapterId) {
           confetti.onOpen();
@@ -72,16 +79,16 @@ export const VideoPlayer = ({
         </div>
       )}
       {!isLocked && (
-        <MuxPlayer
-          title={title}
-          className={cn(
-            !isReady && "hidden"
-          )}
-          onCanPlay={() => setIsReady(true)}
-          onEnded={onEnd}
-          autoPlay
-          playbackId={playbackId}
-        />
+        <div className={cn(!isReady && "hidden")}>
+          <iframe
+            title={title}
+            src={videoUrl}
+            allowFullScreen
+            className={cn("w-full h-full", !isReady && "hidden")}
+            onLoad={() => setIsReady(true)}
+            onEnded={onEnd}
+          />
+        </div>
       )}
     </div>
   )

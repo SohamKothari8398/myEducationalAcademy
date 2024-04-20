@@ -2,9 +2,9 @@
 
 import qs from "query-string";
 import { IconType } from "react-icons";
-import { 
-  usePathname, 
-  useRouter, 
+import {
+  usePathname,
+  useRouter,
   useSearchParams
 } from "next/navigation";
 
@@ -25,7 +25,7 @@ export const CategoryItem = ({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const currentCategoryId = searchParams.get("categoryId");const currentTitle = searchParams.get("title");
+  const currentCategoryId = searchParams.get("categoryId"); const currentTitle = searchParams.get("title");
 
   const isSelected = currentCategoryId === value;
 
@@ -45,12 +45,12 @@ export const CategoryItem = ({
     <button
       onClick={onClick}
       className={cn(
-        "py-2 px-3 text-sm border border-slate-200 rounded-full flex items-center gap-x-1 hover:border-sky-700 transition",
-        isSelected && "border-sky-700 bg-sky-200/20 text-sky-800"
+        " px-2 py-1 md:px-4 md:py-2 font-bold text-sm border border-slate-300 rounded-full flex items-center text-sky-700 hover:border-sky-700 transition",
+        isSelected && "border-sky-700 bg-sky-200/20 text-blue-600"
       )}
       type="button"
     >
-      {Icon && <Icon size={20} />}
+      {Icon && <Icon className=" w-4 h-4 text-sky-700 md:w-6 md:h-6 mr-2 md:mr-4" />}
       <div className="truncate">
         {label}
       </div>

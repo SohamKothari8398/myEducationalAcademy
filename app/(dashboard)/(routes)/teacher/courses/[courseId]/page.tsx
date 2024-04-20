@@ -1,11 +1,9 @@
 import { auth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import { CircleDollarSign, File, LayoutDashboard, ListChecks } from "lucide-react";
-
 import { db } from "@/lib/db";
 import { IconBadge } from "@/components/icon-badge";
 import { Banner } from "@/components/banner";
-
 import { TitleForm } from "./_components/title-form";
 import { DescriptionForm } from "./_components/description-form";
 import { ImageForm } from "./_components/image-form";
@@ -14,6 +12,7 @@ import { PriceForm } from "./_components/price-form";
 import { AttachmentForm } from "./_components/attachment-form";
 import { ChaptersForm } from "./_components/chapters-form";
 import { Actions } from "./_components/actions";
+import { Preview } from "@/components/preview";
 
 const CourseIdPage = async ({
   params
@@ -45,6 +44,7 @@ const CourseIdPage = async ({
     },
   });
 
+
   const categories = await db.category.findMany({
     orderBy: {
       name: "asc",
@@ -64,6 +64,10 @@ const CourseIdPage = async ({
     course.chapters.some(chapter => chapter.isPublished),
   ];
 
+  const reload = () => {
+    window.location.reload();
+  };
+
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
 
@@ -79,7 +83,7 @@ const CourseIdPage = async ({
         />
       )}
       <div className="p-6">
-        <div className="flex items-center justify-between">
+        <div className=" flex flex-col sm:flex-row gap-4 items-center justify-between">
           <div className="flex flex-col gap-y-2">
             <h1 className="text-2xl font-medium">
               Course setup
@@ -88,14 +92,17 @@ const CourseIdPage = async ({
               Complete all fields {completionText}
             </span>
           </div>
-          <Actions
-            disabled={!isComplete}
-            courseId={params.courseId}
-            isPublished={course.isPublished}
-          />
+          <div className="flex items-center justify-center">
+            <Actions
+              disabled={!isComplete}
+              courseId={params.courseId}
+              isPublished={course.isPublished}
+            />
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
           <div>
+
             <div className="flex items-center gap-x-2">
               <IconBadge icon={LayoutDashboard} />
               <h2 className="text-xl">
@@ -164,7 +171,7 @@ const CourseIdPage = async ({
         </div>
       </div>
     </>
-   );
+  );
 }
- 
+
 export default CourseIdPage;

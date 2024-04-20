@@ -120,6 +120,9 @@ export const PriceForm = ({
               </Button>
             </div>
           </form>
+          <div className="text-xs text-muted-foreground mt-4">
+            Price is in INR from 0 to 10000000
+          </div>
         </Form>
       )}
     </div>

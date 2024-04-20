@@ -2,9 +2,9 @@ import { auth } from "@clerk/nextjs";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 
 import { isTeacher } from "@/lib/teacher";
- 
+
 const f = createUploadthing();
- 
+
 const handleAuth = () => {
   const { userId } = auth();
   const isAuthorized = isTeacher(userId);
@@ -24,5 +24,5 @@ export const ourFileRouter = {
     .middleware(() => handleAuth())
     .onUploadComplete(() => {})
 } satisfies FileRouter;
- 
+
 export type OurFileRouter = typeof ourFileRouter;

@@ -1,13 +1,6 @@
-import Mux from "@mux/mux-node";
 import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
-
 import { db } from "@/lib/db";
-
-const { Video } = new Mux(
-  process.env.MUX_TOKEN_ID!,
-  process.env.MUX_TOKEN_SECRET!,
-);
 
 export async function DELETE(
   req: Request,
@@ -26,23 +19,16 @@ export async function DELETE(
         userId: userId,
       },
       include: {
-        chapters: {
-          include: {
-            muxData: true,
-          }
-        }
-      }
+        chapters: true,
+      },
     });
 
     if (!course) {
       return new NextResponse("Not found", { status: 404 });
     }
 
-    for (const chapter of course.chapters) {
-      if (chapter.muxData?.assetId) {
-        await Video.Assets.del(chapter.muxData.assetId);
-      }
-    }
+    // You can add logic here to delete any related data or perform cleanup tasks
+    // For example, deleting associated chapters, attachments, etc.
 
     const deletedCourse = await db.course.delete({
       where: {
@@ -52,7 +38,7 @@ export async function DELETE(
 
     return NextResponse.json(deletedCourse);
   } catch (error) {
-    console.log("[COURSE_ID_DELETE]", error);
+    console.error("[COURSE_ID_DELETE]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
@@ -73,16 +59,16 @@ export async function PATCH(
     const course = await db.course.update({
       where: {
         id: courseId,
-        userId
+        userId,
       },
       data: {
         ...values,
-      }
+      },
     });
 
     return NextResponse.json(course);
   } catch (error) {
-    console.log("[COURSE_ID]", error);
+    console.error("[COURSE_ID_PATCH]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

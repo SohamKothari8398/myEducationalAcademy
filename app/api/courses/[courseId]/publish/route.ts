@@ -1,6 +1,5 @@
 import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
-
 import { db } from "@/lib/db";
 
 export async function PATCH(
@@ -20,11 +19,7 @@ export async function PATCH(
         userId,
       },
       include: {
-        chapters: {
-          include: {
-            muxData: true,
-          }
-        }
+        chapters: true,
       }
     });
 
@@ -34,10 +29,26 @@ export async function PATCH(
 
     const hasPublishedChapter = course.chapters.some((chapter) => chapter.isPublished);
 
-    if (!course.title || !course.description || !course.imageUrl || !course.categoryId || !hasPublishedChapter) {
+    if (!course.title || !course.description || !course.imageUrl || !course.categoryId) {
+      alert("Missing Fileds");
       return new NextResponse("Missing required fields", { status: 401 });
     }
 
+    // Check for YouTube video URLs and embed them using <iframe>
+    const chaptersWithYouTubeVideos = course.chapters.filter(chapter => chapter.videoUrl?.includes("youtube.com"));
+
+    // Embed YouTube videos using <iframe> and store the embed URLs in your database
+    for (const chapter of chaptersWithYouTubeVideos) {
+      const embedUrl = getYouTubeEmbedUrl(chapter.videoUrl);
+      if (embedUrl) {
+        await db.chapter.update({
+          where: { id: chapter.id },
+          data: { videoUrl: embedUrl }, // Update to use videoUrl
+        });
+      }
+    }
+
+    // Publish the course
     const publishedCourse = await db.course.update({
       where: {
         id: params.courseId,
@@ -52,5 +63,17 @@ export async function PATCH(
   } catch (error) {
     console.log("[COURSE_ID_PUBLISH]", error);
     return new NextResponse("Internal Error", { status: 500 });
-  } 
+  }
+}
+
+// Function to get YouTube embed URL
+function getYouTubeEmbedUrl(videoUrl: string | null): string | null {
+  // Extract video ID from YouTube URL
+  const videoId = videoUrl?.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (videoId) {
+    // Return embed URL with the video ID
+    return `https://www.youtube.com/embed/${videoId[1]}`;
+  } else {
+    return null; // Return null if video URL is null or not a YouTube URL
+  }
 }
